@@ -1,0 +1,24 @@
+# Mercor bot filters. Edit this file on GitHub (pencil icon) and commit.
+# Changes apply from the next run. Only NEW listings are checked against
+# these filters; listings already seen won't be re-sent.
+
+# Notify only if the title, description or domain contains one of these words
+# (case-insensitive). Empty list [] = notify for every job.
+# Example: include_keywords: ["writing", "finance", "legal"]
+include_keywords: []
+
+# Skip a job if any of these words appear. Example: ["onsite", "PhD"]
+exclude_keywords: []
+
+# Skip hourly jobs whose top rate (USD/hr) is below this. 0 = no minimum.
+# Per-task and one-time pay are never filtered by this.
+min_hourly_rate: 0
+
+# Only notify if a job is open to one of these countries (3-letter ISO codes:
+# NGA = Nigeria, GHA = Ghana, KEN = Kenya, ZAF = South Africa, GBR = UK, USA...).
+# Jobs open worldwide always pass. Empty list [] = no country filter.
+eligible_countries: ["NGA"]
+
+# Some jobs have no country data at all. true = notify you anyway
+# (you check eligibility yourself); false = skip them.
+notify_if_eligibility_unknown: true
