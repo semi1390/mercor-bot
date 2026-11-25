@@ -109,7 +109,7 @@ notify_if_eligibility_unknown: true        # jobs with no country info: true = n
 
 ## What you'll receive
 
-- **One message per new job:** title, pay, location, eligible countries, commitment and an apply link.
+- **One message per new job:** title, pay, location, eligible countries, commitment, spots left (when Mercor provides it; marked 🔥 closing soon once 90% are filled) and an apply link.
 - **More than 10 new matches at once:** one summary message with links instead.
 - **The bot breaks** (3 failed checks in a row): one ⚠️ warning, then a ✅ message when it recovers.
 

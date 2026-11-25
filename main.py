@@ -261,6 +261,22 @@ def fmt_commitment(listing):
     return f"{c} · {hours} hrs/week" if hours else c
 
 
+def fmt_spots(listing):
+    """'3 of 10 left', plus 'closing soon' once 90% are filled (same rule as
+    Mercor's own badge). Returns None when Mercor gives no slot data."""
+    total = listing.get("maxFutureHcg")
+    filled = listing.get("suppliedSlots") or 0
+    left = listing.get("remainingSlots")
+    if left is None and total:
+        left = max(total - filled, 0)
+    if left is None:
+        return None
+    text = f"{left} of {total} left" if total else f"{left} left"
+    if total and filled >= 0.9 * total:
+        text += " · 🔥 closing soon"
+    return text
+
+
 def job_url(listing):
     return JOB_URL.format(id=listing["listingId"])
 
@@ -278,6 +294,9 @@ def format_listing(listing):
         f"🌍 Eligible: {e(fmt_countries(listing))}",
         f"⏱ {e(fmt_commitment(listing))}",
     ]
+    spots = fmt_spots(listing)
+    if spots:
+        lines.append(f"👥 Spots: {e(spots)}")
     if listing.get("listingDomain"):
         lines.append(f"🏷 {e(listing['listingDomain'])}")
     lines.append(f'🔗 <a href="{e(job_url(listing))}">View &amp; apply</a>')
@@ -291,6 +310,9 @@ def format_summary(listings):
             f'• <a href="{html.escape(job_url(x))}">{html.escape(x.get("title") or "Untitled")}</a>'
             f" — {html.escape(fmt_pay(x))}"
         )
+        spots = fmt_spots(x)
+        if spots:
+            line += f" · {html.escape(spots)}"
         # Telegram messages max out at 4096 characters.
         if len("\n".join(lines + [line])) > 3900:
             lines.append("…and more on https://work.mercor.com/explore")
