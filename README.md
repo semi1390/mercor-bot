@@ -58,6 +58,31 @@ Secrets are encrypted and hidden from visitors to your public repo. GitHub also 
 
 **Optional:** to test Telegram alone, open `.github/workflows/check.yml`, change `run: python main.py` to `run: python main.py --test-telegram`, run the workflow, then change it back.
 
+## Optional: real 15-minute checks with cron-job.org
+
+GitHub's built-in timer often runs free repos only every few hours. A free outside timer can start the workflow every 15 minutes instead. GitHub's timer stays on as a backup.
+
+**A. Make a GitHub token that can only start this workflow**
+1. GitHub → your profile picture → **Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate new token**.
+2. Name: `mercor-cron`. Expiration: the longest option offered (set a reminder to renew it).
+3. Repository access: **Only select repositories** → `mercor-bot`.
+4. Permissions → Repository permissions → **Actions: Read and write**. Leave everything else as it is.
+5. Click **Generate token** and copy it. GitHub shows it only once.
+
+**B. Create the timer on [cron-job.org](https://cron-job.org)** (free account)
+1. **Create cronjob**. Title: `Mercor bot`.
+2. URL: `https://api.github.com/repos/<your-username>/mercor-bot/actions/workflows/check.yml/dispatches`
+3. Schedule: **Every 15 minutes**.
+4. **Advanced** tab → Request method **POST**. Add these headers:
+   - `Accept` = `application/vnd.github+json`
+   - `Authorization` = `Bearer <your token>`
+   - `X-GitHub-Api-Version` = `2022-11-28`
+   - `Content-Type` = `application/json`
+5. Request body: `{"ref":"main"}`
+6. Save, then click **Test run**. A response of **204** means it worked, and a new run appears in your Actions tab.
+
+If the token expires, cron-job.org shows errors (401) and GitHub's own timer keeps the bot running more slowly. Make a new token and paste it into the `Authorization` header.
+
 ## Sending alerts to more than one person
 
 1. Your friend opens your bot in Telegram (send them the `t.me/your_bot_name` link), taps **Start** and sends any message. A bot can't message anyone who hasn't done this.
