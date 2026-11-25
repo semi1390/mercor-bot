@@ -58,6 +58,14 @@ Secrets are encrypted and hidden from visitors to your public repo. GitHub also 
 
 **Optional:** to test Telegram alone, open `.github/workflows/check.yml`, change `run: python main.py` to `run: python main.py --test-telegram`, run the workflow, then change it back.
 
+## Sending alerts to more than one person
+
+1. Your friend opens your bot in Telegram (send them the `t.me/your_bot_name` link), taps **Start** and sends any message. A bot can't message anyone who hasn't done this.
+2. Open `https://api.telegram.org/bot<TOKEN>/getUpdates` again. Find your friend's message and the number after its `"chat":{"id":`. That is their chat ID.
+3. On GitHub: **Settings → Secrets and variables → Actions**, click the ✏️ next to `TELEGRAM_CHAT_ID`, and enter both IDs separated by a comma, e.g. `987654321,123456789`.
+
+Everyone on the list gets the same alerts and filters. If one person blocks the bot, the others still get their messages.
+
 ## 6. Change your filters
 
 Open `config.yaml` on GitHub, tap the ✏️ pencil icon, edit, and click **Commit changes**. The next run uses the new settings.

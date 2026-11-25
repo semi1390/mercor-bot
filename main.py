@@ -304,15 +304,31 @@ def format_summary(listings):
 # --------------------------------------------------------------------------
 
 def send_telegram(text, dry_run=False):
+    """Send to every chat in TELEGRAM_CHAT_ID (comma-separated for several people).
+    Succeeds if at least one chat got it, so one person blocking the bot
+    doesn't stop everyone else's alerts."""
     if dry_run:
         print("----- would send -----")
         print(text)
         return
     token = os.environ.get("TELEGRAM_BOT_TOKEN")
-    chat_id = os.environ.get("TELEGRAM_CHAT_ID")
-    if not token or not chat_id:
+    chat_ids = [c.strip() for c in os.environ.get("TELEGRAM_CHAT_ID", "").split(",") if c.strip()]
+    if not token or not chat_ids:
         raise RuntimeError("TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID must be set")
 
+    errors = []
+    for n, chat_id in enumerate(chat_ids, start=1):
+        try:
+            send_to_chat(token, chat_id, text)
+        except Exception as e:
+            # Print the chat's position, not its ID, to keep IDs out of the public log.
+            print(f"Could not send to chat #{n}: {e}")
+            errors.append(e)
+    if len(errors) == len(chat_ids):
+        raise RuntimeError(f"Telegram send failed for all chats: {errors[0]}")
+
+
+def send_to_chat(token, chat_id, text):
     url = f"https://api.telegram.org/bot{token}/sendMessage"
     payload = {
         "chat_id": chat_id,
