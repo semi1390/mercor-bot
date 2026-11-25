@@ -4,6 +4,11 @@ on:
   schedule:
     - cron: "*/15 * * * *"   # every 15 minutes (GitHub may delay this a little)
   workflow_dispatch:          # adds a "Run workflow" button in the Actions tab
+    inputs:
+      test_message:
+        description: "Only send a test message to everyone (no job check)"
+        type: boolean
+        default: false
 
 # Lets the job push seen.json / state.json back to the repo.
 permissions:
@@ -33,7 +38,13 @@ jobs:
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-        run: python main.py
+          TEST_MESSAGE: ${{ inputs.test_message }}
+        run: |
+          if [ "$TEST_MESSAGE" = "true" ]; then
+            python main.py --test-telegram
+          else
+            python main.py
+          fi
 
       - name: Save state to repo (only if changed)
         if: always()
